@@ -7,6 +7,7 @@
     <meta name="description" content="IdleBots">
     <meta name="author" content="Algraud">
     <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <!-- 		IdleBots
 		Copyright (C) 2022 Algimantas Rauduve
@@ -38,7 +39,6 @@
                     <div class="row resourceRow">
                         <div class="col-xs-6 maxH">
                             <div id="food" class="playerGather">
-                                <div id="boneShrineBtn" style="display: none" class="isEmpty noselect" onmouseover="tooltip('Bone Shrine', null, event)" onclick="game.permaBoneBonuses.boosts.consume()" onmouseout="tooltip('hide')"></div>
                                 <span class="title">Food</span>
                                 <br/>
                                 <span class="ownedArea bdHover" onclick="getMaxResources('Food')"><span id="foodOwned">0</span> / <span id="foodMax"></span></span>
