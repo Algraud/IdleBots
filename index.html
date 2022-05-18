@@ -1,1 +1,65 @@
-<h1>Hello world</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <title>IdleBots 0.0.1</title>
+    <meta name="description" content="IdleBots">
+    <meta name="author" content="Algraud">
+    <link rel="stylesheet" href="css/bootstrap.css">
+</head>
+<!-- 		IdleBots
+		Copyright (C) 2022 Algimantas Rauduve
+		This program is free software: you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
+		the Free Software Foundation, either version 3 of the License, or
+		(at your option) any later version.
+		This program is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+		GNU General Public License for more details.
+		You should have received a copy of the GNU General Public License
+		along with this program (if you are reading this on the original
+		author's website, you can find a copy at
+		<algraud.github.io/IdleBots/license.txt>). If not, see
+		<http://www.gnu.org/licenses/>. -->
+<body onblur="gameUnfocused()">
+    <noscript>
+        <div id="checkJavascript" style="position: absolute; height: 100%; width: 100%; font-size: 2vw; padding: 10%; color: white; background-color: black; z-index: 1000000;">
+            For some reason, your browser is having trouble loading this game. This game runs on javascript, and if you have an addon such as noscript, you may need to tell it to allow scripts from http://trimps.github.io, which is where this game is hosted.<br/><br/>
+            If you are not using any addons that might interfere with javascript, try using the latest versions of Chrome or Firefox.
+        </div>
+    </noscript>
+    <div id="wrapper" style="background: url(css/bg2.png) center repeat-x;">
+        <div id="innerWrapper">
+            <div id="warnings"></div>
+            <div class="row" id="topRow">
+                <div class="col-xs-4" id="resourceColumn">
+                    <div class="row resourceRow">
+                        <div class="col-xs-6 maxH">
+                            <div id="food" class="playerGather">
+                                <div id="boneShrineBtn" style="display: none" class="isEmpty noselect" onmouseover="tooltip('Bone Shrine', null, event)" onclick="game.permaBoneBonuses.boosts.consume()" onmouseout="tooltip('hide')"></div>
+                                <span class="title">Food</span>
+                                <br/>
+                                <span class="ownedArea bdHover" onclick="getMaxResources('Food')"><span id="foodOwned">0</span> / <span id="foodMax"></span></span>
+                                <br/>
+                                <div class="progress resProgress">
+                                    <div class="progress-bar percentColorBlue" id="foodBar" role="progressbar">
+                                        <span id="foodTimeToFill"></span>
+                                    </div>
+                                </div>
+                                <div class="row collectRow">
+                                    <div class="col-xs-6">
+                                        <div id="foodCollectBtn" class="workBtn workColorOff pointer noselect" onclick="setGather('food')">Gather</div>
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <span class="psText sizeSecRegular pointer noselect" id="foodPs" onclick="getPsString('food')">+0/sec</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
