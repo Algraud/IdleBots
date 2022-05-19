@@ -36,18 +36,33 @@
 }
 #leftColumn{
     height: 100%;
-    margin-left: 15px;
-    padding-right: 0.25vw;
-    padding-left: 0;
 }
 #arenaColumn{
     height: calc(100vh - 18vh - 56px);
-    padding-right: 0.25vw;
-    padding-left: 0.25vw;
+
 }
 #rightColumn{
     height: 100%;
-    padding-left: 0.25vw;
-    margin-right: 15px;
-    padding-right: 0;
+}
+#arenaContainer{
+    padding: 0.25vw;
+}
+#gridRow{
+    height: calc(99% - 140px);
+    padding-left: 0;
+    margin-left: 0;
+}
+#arenaButtonsColumn{
+    padding-right: 1px;
+    padding-left: 0;
+}
+#grid{
+    width: 100%;
+    height: 100%;
+    color: black;
+    background: rgba(255,255,255,0.25);
+    text-align: left;
+    list-style: none;
+    padding-left: 0;
+    cursor: default;
 }
