@@ -36,7 +36,9 @@
 }
 #leftColumn{
     height: 100%;
-    padding-left: 0.25vw;
+    margin-left: 15px;
+    padding-right: 0.25vw;
+    padding-left: 0;
 }
 #arenaColumn{
     height: 100%;
@@ -45,5 +47,7 @@
 }
 #rightColumn{
     height: 100%;
-    padding-right: 0.25vw;
+    padding-left: 0.25vw;
+    margin-right: 15px;
+    padding-right: 0;
 }
