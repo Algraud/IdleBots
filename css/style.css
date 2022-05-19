@@ -41,7 +41,7 @@
     padding-left: 0;
 }
 #arenaColumn{
-    height: 100%;
+    height: calc(100vh - 18vh - 56px);
     padding-right: 0.25vw;
     padding-left: 0.25vw;
 }
