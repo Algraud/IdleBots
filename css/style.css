@@ -34,3 +34,16 @@
     background: rgba(121, 121, 121, 0.5);
     color: white;
 }
+#leftColumn{
+    height: 100%;
+    padding-left: 0.25vw;
+}
+#arenaColumn{
+    height: 100%;
+    padding-right: 0.25vw;
+    padding-left: 0.25vw;
+}
+#rightColumn{
+    height: 100%;
+    padding-right: 0.25vw;
+}
