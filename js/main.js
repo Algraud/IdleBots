@@ -3,7 +3,7 @@ function load(){
 }
 
 function drawGrid() {
-    var grid = document.getElementById(grid);
+    var grid = document.getElementById("grid");
     var cols = 10;
     var rows = 10;
     var idText = "cell";
