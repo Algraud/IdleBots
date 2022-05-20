@@ -66,3 +66,14 @@
     padding-left: 0;
     cursor: default;
 }
+.arenaRow{
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.arenaCell{
+    border: 1px solid black;
+    display: inline-block;
+    text-align: center;
+}
