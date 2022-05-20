@@ -4,6 +4,7 @@ function load(){
 
 function drawGrid() {
     var grid = document.getElementById("grid");
+    grid.innerHTML = "";
     var cols = 10;
     var rows = 10;
     var idText = "cell";
@@ -21,6 +22,7 @@ function drawGrid() {
             cell.style.paddingTop = ((100 / cols) / 19)+ "vh";
             cell.style.paddingBottom = ((100 / cols) / 19) + "vh";
             cell.style.fontSize = ((cols / 14) + 1) + "vh";
+            if (cell.innerHTML === "") cell.innerHTML = "&nbsp;";
             var className = "arenaCell";
             cell.className = className;
             counter++;
