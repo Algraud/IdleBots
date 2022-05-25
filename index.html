@@ -6,8 +6,9 @@
     <title>IdleBots 0.0.1</title>
     <meta name="description" content="IdleBots">
     <meta name="author" content="Algraud">
-    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" href="icons/bootstrap-icons.css">
 </head>
 <!-- 		IdleBots
 		Copyright (C) 2022 Algimantas Rauduve
@@ -33,33 +34,150 @@
 </noscript>
 <div id="wrapper" style="display: block;">
     <div id="innerWrapper" style="background-color: black; display: block;">
-        <div class="row" id="topRow">
-            <div class="col-12" id="resourceColumn">
-                <div class="myBox"></div>
-            </div>
-        </div>
-        <div class="row" id="bottomRow">
-            <div class="col-2" id="leftColumn">
-                <div class="myBox"></div>
-            </div>
-            <div class="col-8" id="arenaColumn">
-                <div class="myBox" id="arenaContainer">
-                    <div id="arenaHeadContainer"></div>
-                    <div class="row" id="gridRow">
-                        <div class="col-2" id="arenaButtonsColumn"></div>
-                        <div class="col-10" id="gridContainer">
-                            <div id="grid"></div>
+        <div class="container-fluid">
+            <div class="row" id="dataRow">
+                <div class="col-6" id="resourceColumn">
+                    <div class="row">
+                        <div class="col-12 col-md-6 col-xl-4 jobBox" id="tempJob1">
+                            <div id="wheat" class="jobContainer myBox">
+                                <span class="title">Wheat</span>
+                                <div class="progress resProgress">
+                                    <div class="progress-bar percentColorGreen" id="wheatBar"
+                                         role="progressbar" style="width: 25%; border-right:  2px solid black">
+                                        <span id="wheatPerSec">X/s</span>
+                                    </div>
+
+                                </div>
+                                <span id="wheatProfit">X$/s</span>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-4 jobBox" id="tempJob2">
+                            <div class="myBox"></div>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-4 jobBox" id="tempJob3">
+                            <div class="myBox"></div>
                         </div>
                     </div>
                 </div>
+                <div class="col-6" id="leftColumn">
+                    <div class="row" id="logRow">
+                        <div class="myBox" id="logContainer">
+                            <div id="logBtnGroup" class="d-flex btn-group btn-group-justified" role="group">
+                                <div class="btn-group flex-fill" role="group">
+                                    <button id="MarketFilter" onclick="filterMessage('Market')" type="button"
+                                            class="btn btn-success logFilter">Market</button>
+                                </div>
+                                <div class="btn-group flex-fill" role="group">
+                                    <button id="UpgradesFilter" onclick="filterMessage('Upgrades')" type="button"
+                                            class="btn btn-danger logFilter">Upgrades</button>
+                                </div>
+                                <div id="logConfigHolder" class="btn-group" role="group">
+                                    <button id="logConfigBtn" onclick="tooltip('Message Config', null, 'update')" type="button"
+                                            class="btn btn-light logFilter">
+                                        <i class="bi-gear"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="log" class="niceScroll">
+                                <p class="MarketMessage message">
+                                    <i title="Market" class="bi-bag-fill"></i> 12:59:59 Something Happened!
+                                </p>
+                                <p class="UpgradeMessage message">
+                                    <i title="Upgrade" class="bi-arrow-up-circle-fill"></i> 13:39:59 Something Other Happened!
+                                </p>
+                                <p class="MarketMessage message">
+                                    <i title="Market" class="bi-bag-fill"></i> 13:59:59 Something Third Happened!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row top5" id="buyRow">
+                        <div class="outerBuyContainer myBox">
+                            <div id="buyTabs">
+                                <ul id="buyTabsUl" class="nav nav-tabs nav-justified">
+                                    <li role="presentation" id="allTab" onclick="filterTabs('all')"
+                                        class="buyTab nav-item tabSelected">
+                                        <a>All</a>
+                                    </li>
+                                    <li role="presentation" id="botsTab" onclick="filterTabs('bots')"
+                                        class="buyTab nav-item tabNotSelected">
+                                        <a>Bots</a>
+                                    </li>
+                                    <li role="presentation" id="upgradesTab" onclick="filterTabs('upgrades')"
+                                        class="buyTab nav-item tabNotSelected">
+                                        <a>Upgrades</a>
+                                    </li>
+                                    <li role="presentation" id="blueprintsTab" onclick="filterTabs('blueprints')"
+                                        class="buyTab nav-item tabNotSelected">
+                                        <a>Blueprints</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div id="numTabs">
+                                <ul class="nav nav-tabs nav-justified">
+                                    <li role="presentation" class="tabSelected nav-item" id="numTab1" onclick="numTab(1)">
+                                        <a>+1</a>
+                                    </li>
+                                    <li role="presentation" class="tabNotSelected nav-item" id="numTab2" onclick="numTab(2)">
+                                        <a>+10</a>
+                                    </li>
+                                    <li role="presentation" class="tabNotSelected nav-item" id="numTab3" onclick="numTab(3)">
+                                        <a>+25</a>
+                                    </li>
+                                    <li role="presentation" class="tabNotSelected nav-item" id="numTab4" onclick="numTab(4)">
+                                        <a>+100</a>
+                                    </li>
+                                    <li role="presentation" class="tabNotSelected nav-item" id="numTab5" onclick="numTab(5)">
+                                        <a>Max</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div id="buyContainer" class="niceScroll buyContainerSizeSm">
+                                <div id="buyHere" class="niceScroll buttonSizeLarge">
+                                    <div id="botsContainer">
+                                        <div id="botsTitleDiv" class="titleDiv">
+                                            <span id="botsTitleSpan" class="titleSpan">Bots</span>
+                                        </div>
+                                        <div id="botsHere" class="buyBox">
+                                            <div onmouseover="tooltip('WheatBot', 'bots', event)" onmouseout="tooltip('hide')"
+                                                 class="thingColorCanAfford thing noSelect pointer botsThing" id="WheatBot"
+                                                 onclick="buyBot('WheatBot')">
+                                                <span class="thingName">WheatBot</span>
+                                                <br>
+                                                <span class="thingOwned" id="WheatBotOwned">35</span>
+                                            </div>
+                                            <div onmouseover="tooltip('MillBot', 'bots', event)" onmouseout="tooltip('hide')"
+                                                 class="thingColorCanNotAfford thing noSelect pointer botsThing" id="MillBot"
+                                                 onclick="buyBot('MillBot')">
+                                                <span class="thingName">MillBot</span>
+                                                <br>
+                                                <span class="thingOwned" id="MillBotsOwned">35</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="upgradesContainer"></div>
+                                    <div id="blueprintsContainer"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
             </div>
-            <div class="col-2" id="rightColumn">
-                <div class="myBox"></div>
+            <div id="settingsRow">
+                <table id="settingsTable">
+                    <tbody>
+                    <tr>
+                        <td class="btn btn-info"> Save </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div id="settingsRow"></div>
     </div>
 </div>
+<script src="js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 </body>
 

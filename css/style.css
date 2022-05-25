@@ -7,10 +7,6 @@
     padding: 0.5%;
     height: 100%;
 }
-#topRow{
-    height: 18vh;
-    margin-bottom: 10px;
-}
 #settingsRow{
     position: fixed;
     bottom: 0;
@@ -20,10 +16,16 @@
     color: white;
     z-index: 7;
 }
+#settingsTable{
+    width: 100%;
+}
+#settingsTable > tbody > tr > td {
+    width: 9.1% !important;
+    border: 1px solid black;
+    display: table-cell !important;
+    text-align: center;
+}
 #resourceColumn{
-    padding-left: 0;
-    margin-left: 15px;
-    width: calc(33.33333% - 15px);
     padding-right: 15px;
     height: 100%;
 }
@@ -33,47 +35,149 @@
     width: 100%;
     background: rgba(121, 121, 121, 0.5);
     color: white;
+    padding: 0;
 }
 #leftColumn{
     height: 100%;
 }
-#arenaColumn{
-    height: calc(100vh - 18vh - 56px);
-
-}
 #rightColumn{
     height: 100%;
 }
-#arenaContainer{
-    padding: 0.25vw;
+.jobBox{
+    height: 15vh;
+    padding-bottom: 10px;
 }
-#gridRow{
-    height: calc(99% - 140px);
-    padding-left: 0;
-    margin-left: 0;
+#logRow{
+    height: 30vh;
+    padding-bottom: 10px;
 }
-#arenaButtonsColumn{
-    padding-right: 1px;
-    padding-left: 0;
+#buyRow{
+    height: 60vh;
 }
-#grid{
-    width: 100%;
+.top5{
+    margin-top: 5px;
+}
+.title {
+    font-weight: bold;
+    font-size: 1.4em;
+}
+.jobContainer{
+    position: relative;
+    font-size: 1.1vw;
+    text-align: center;
     height: 100%;
-    color: black;
-    background: rgba(255,255,255,0.25);
-    text-align: left;
-    list-style: none;
-    padding-left: 0;
-    cursor: default;
 }
-.arenaRow{
-    list-style: none;
-    padding-left: 0;
+.progress{
+    position: relative;
     margin-bottom: 0;
 }
-
-.arenaCell{
-    border: 1px solid black;
+.resProgress{
+    height: 12%;
+}
+.percentColorGreen{
+    background-color: #31f500;
+}
+.progress > div > span{
+    position: absolute;
+    display: block;
+    width: 100%;
+    font-size: 1vw;
+    line-height: 1vw;
+    margin: 0;
+    padding: 0;
+    color: black;
+}
+#buyContainer{
+    overflow-y: auto;
+}
+.buyContainerSizeSm{
+    height: calc(99vh - 20vw - 195px);
+}
+.tabSelected .buyTab{
+    background: rgba(255,255,255,0.25);
+}
+.tabNotSelected{
+    background: rgba(255,255,255,0.25);
+}
+.nav > li{
+    cursor: pointer;
+}
+.buyTab{
+    font-size: 1vw;
+}
+.buyTab > ul > .tabSelected a {
+    border-bottom: 0;
+}
+#buyTabsUl > li > a{
+    border: 1px solid #ddd;
+    border-radius: 8px 8px 0 0 !important;
+}
+.nav-tabs > li > a{
+    color: white;
+    font-size: 1vw;
+    padding: 4px;
+    display: block;
+}
+#buyHere{
+    padding: 5px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    width: 100%;
+    overflow-y: auto;
+}
+.titleDiv{
+    font-size: 1.5em;
+    padding: 5px 0 5px 0;
+    text-align: center;
+    width: calc(100% - 10px);
+}
+.titleSpan{
+    font-size: 0.9vw;
+    display: block;
+}
+.thingColorCanAfford{
+    background: black;
+}
+.thingColorCanNotAfford{
+    background: gray;
+}
+.pointer{
+    cursor: pointer;
+}
+.thing{
     display: inline-block;
+    width: 24.2%;
+    margin-left: 0.25%;
+    margin-right: 0.25%;
+    padding: 0.2vh;
+    text-align: center;
+    color: white;
+    font-size: 0.85vw;
+    border: 1px solid white;
+}
+.noSelect{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+#logBtnGroup{
+    height: 2vw;
+    font-size: 1vw;
+}
+#log{
+    height: calc(100% - 2.1vw);
+    width: 100%;
+    overflow-y: scroll;
+    padding-left: 5px;
+    padding-top: 2px;
+    padding-right: 5px;
+}
+#logBtnGroup div button{
+    font-size: 0.8vw;
+}
+#logConfigBtn{
     text-align: center;
 }
