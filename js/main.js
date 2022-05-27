@@ -1,16 +1,17 @@
 let autoSaveTimeout;
 
-function autosave(){
+
+function autoSave(){
     save();
-    autoSaveTimeout = setTimeout(autosave, 60000);
+    autoSaveTimeout = setTimeout(autoSave, 60000);
 }
 
 const saveName = "idleBotsSave";
 
 function load(){
+    const unparsedSave = localStorage.getItem(saveName);
     let saveGame;
     try{
-        var unparsedSave = localStorage.getItem(saveName);
     } catch (e){
         message("Your browser is preventing IdleBots from accessing localStorage", "Notices");
     }
@@ -21,8 +22,9 @@ function load(){
     if(typeof saveGame === "undefined" || saveGame === null || typeof saveGame.global === "undefined"){
         //return false;
     }
-
-    autosave();
+    drawAllBots();
+    drawAllGathers();
+    autoSave();
 }
 
 let isSaving;
@@ -43,10 +45,10 @@ function gameTimeout(){
         setTimeout(gameTimeout, 100);
         return
     }
-    var now = new Date().getTime();
-    var tick = 1000 / game.settings.speed;
+    const now = new Date().getTime();
+    const tick = 1000 / game.settings.speed;
     game.global.time += tick;
-    var dif = now - game.global.start - game.global.time;
+    let dif = now - game.global.start - game.global.time;
     while (dif >= tick){
         runGameLoop(true);
         dif -= tick;
@@ -65,9 +67,11 @@ function runGameLoop(makeUp){
     }
 }
 
-var loops = 0;
+let loops = 0;
+
 function gameLoop(makeUp){
     gather(makeUp);
+    update();
     loops++;
     //every second
     if(loops % 10){
@@ -75,22 +79,48 @@ function gameLoop(makeUp){
     }
 }
 
+function update(){
+    updateCurrency();
+}
+
+function updateCurrency(){
+    let elem = document.getElementById("currencyCounter");
+    elem.innerHTML =  prettify(game.currency["credits"].owned) +
+        ' <i class="bi-motherboard"></i>';
+}
+
+function updateResources(botIndex, amount){
+    let resources = game.resources;
+    let change;
+    let bot = game.bots[botIndex];
+    for (let item in bot.input){
+        change = bot.input[item] * amount;
+        resources[item].production -= change;
+        resources[item].demand += change;
+    }
+    for (let item in bot.output){
+        change = bot.output[item] * amount;
+        resources[item].production += amount;
+        resources[item].supply += amount;
+    }
+}
+
 function gather(){
     let amount;
-    for (let job in game.jobs) {
+    for (let res in game.resources) {
         let perSec = 0;
-        const increase = game.jobs[job].increase;
-        if(game.jobs[job].owned > 0){
-            perSec = game.jobs[job].owned * game.jobs[job].modifier;
+        if(game.resources[res].production > 0) {
+            perSec = game.resources[res].production;
+            amount = perSec / game.settings.speed;
+            sellResource(res, amount);
         }
-        amount = perSec / game.settings.speed;
-        sellResource(increase, amount)
     }
 }
 
 function sellResource(resource, amount){
     const resPrice = getResourcePrice(resource);
     game.currency["credits"].owned += amount * resPrice;
+    game.currency["credits"].earned += amount * resPrice;
 }
 
 function getResourcePrice(resource){
@@ -103,8 +133,99 @@ function message(messageString, type){
 
 }
 
-function tooltip(what){}
+function canAffordBot(what, buying, returnString){
+    let price = 0;
+    let costString = "";
+    let toBuy = game.bots[what];
+    let purchaseAmt;
+    if(game.global.buyAmt == "Max"){
+        purchaseAmt = calculateMaxAfford(toBuy);
+    } else {
+        purchaseAmt = game.global.buyAmt;
+    }
+    if(typeof toBuy === 'undefined') return false;
+    for(const costItem in toBuy.cost){
+        let priceRes = 0;
+        priceRes = parseFloat(getBotItemPrice(toBuy, costItem, purchaseAmt));
+        priceResCurrency = priceRes * getResourcePrice(costItem)
+        price += priceResCurrency;
+        if(returnString){
+            costString += '<span>' + costItem + ': ' + prettify(priceRes) + ' (' +
+                priceResCurrency + '<i class="bi-motherboard"></i>)</span>, ';
+        }
+    }
+    let money = game.currency['credits'].owned;
+    if(buying && money >= price){
+        game.currency['credits'].owned -= price;
+        return true;
+    }
+    if(returnString){
+        costString += '<span> Total: ' + price + '<i class="bi-motherboard"></i></span>';
+        return costString.slice(0, -2);
+    }
+    return money >= price;
+}
+
+function getBotItemPrice(toBuy, costItem, amount){
+    let price;
+    const thisCost = toBuy.cost[costItem];
+    if(typeof thisCost[1] !== 'undefined'){
+        let start = thisCost[0] * Math.pow(thisCost[1], toBuy['owned']);
+        let increase = (Math.pow(thisCost[1], amount) - 1) / (thisCost[1] - 1);
+        price = Math.floor(start * increase);
+    } else {
+        price = thisCost * amount;
+    }
+    return price;
+}
+
+function calculateMaxAfford(itemObj){
+    if(!itemObj.cost) return 1;
+    let current = itemObj.owned;
+    const money = game.currency['credits'].owned;
+    let price = 0;
+    let count = 0;
+    while(money > price) {
+        count++;
+        current++;
+        for (const item in itemObj.cost) {
+            const priceRes = itemObj.cost[item];
+            const resource = game.resources[item];
+            if (typeof priceRes[1] !== 'undefined') {
+                price += Math.floor((priceRes[0] * Math.pow(priceRes[1],current)) * getResourcePrice(resource));
+            } else {
+                price += priceRes * getResourcePrice(resource);
+            }
+        }
+    }
+    return count;
+}
+
+function buyBot(what){
+    const toBuy = game.bots[what];
+    if(typeof toBuy === 'undefined') return false;
+    let amount = (game.global.buyAmt == "Max") ? calculateMaxAfford(toBuy) : game.global.buyAmt;
+    if(!canAffordBot(what, true)) return false;
+    toBuy.owned += amount;
+    updateResources(what, amount);
+    updateOwnedCount(what, toBuy.owned);
+    updateGatherBoxes();
+}
+
+function costUpdatesTimeout(){
+    checkButtons("bots");
+    setTimeout(costUpdatesTimeout, 250)
+}
+
+function resetGame(){
+    game = null;
+    game = newGame();
+    drawAllBots();
+    drawAllGathers();
+    autoSave();
+}
 
 load();
 
+costUpdatesTimeout();
 setTimeout(gameTimeout, (1000 / game.settings.speed));

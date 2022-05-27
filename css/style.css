@@ -47,7 +47,7 @@
     height: 15vh;
     padding-bottom: 10px;
 }
-#logRow{
+#logRow, #statsRow{
     height: 30vh;
     padding-bottom: 10px;
 }
@@ -63,7 +63,7 @@
 }
 .jobContainer{
     position: relative;
-    font-size: 1.1vw;
+    font-size: 1.5vmin;
     text-align: center;
     height: 100%;
 }
@@ -180,4 +180,30 @@
 }
 #logConfigBtn{
     text-align: center;
+}
+#tooltipDiv{
+    width: 32.5vw;
+    position: absolute;
+    background: lightgray;
+    display: none;
+    padding: 10px;
+    border: 2px solid green;
+    font-size: 0.9vw;
+    z-index: 7;
+}
+#tipTitle{
+    font-size: 1.2em;
+    text-align: center;
+}
+.resPut{
+    align-self: center;
+}
+.resInput, .resOutput{
+    width: 50%;
+}
+.resProfit{
+    position: absolute;
+    bottom: 0;
+}
+#statsRow{
 }

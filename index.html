@@ -28,7 +28,7 @@
 <body>
 <noscript>
     <div id="checkJavascript" style="position: absolute; height: 100%; width: 100%; font-size: 2vw; padding: 10%; color: white; background-color: black; z-index: 1000000;">
-        For some reason, your browser is having trouble loading this game. This game runs on javascript, and if you have an addon such as noscript, you may need to tell it to allow scripts from http://trimps.github.io, which is where this game is hosted.<br/><br/>
+        For some reason, your browser is having trouble loading this game. This game runs on javascript, and if you have an addon such as noscript, you may need to tell it to allow scripts from http://algraud.github.io/IdleBots, which is where this game is hosted.<br/><br/>
         If you are not using any addons that might interfere with javascript, try using the latest versions of Chrome or Firefox.
     </div>
 </noscript>
@@ -37,18 +37,23 @@
         <div class="container-fluid">
             <div class="row" id="dataRow">
                 <div class="col-6" id="resourceColumn">
-                    <div class="row">
+                    <div class="row" id="statsRow">
+                        <div id="statsBox" class="myBox"></div>
+                    </div>
+                    <div class="row" id="gathersHere">
                         <div class="col-12 col-md-6 col-xl-4 jobBox" id="tempJob1">
                             <div id="wheat" class="jobContainer myBox">
                                 <span class="title">Wheat</span>
-                                <div class="progress resProgress">
-                                    <div class="progress-bar percentColorGreen" id="wheatBar"
-                                         role="progressbar" style="width: 25%; border-right:  2px solid black">
-                                        <span id="wheatPerSec">X/s</span>
+                                <div class="row">
+                                    <div class="col-6 resInput">
+                                        <div class="resPut">Wood: 1/s</div>
+                                        <div class="resPut">Metal: 5/s</div>
                                     </div>
-
+                                    <div class="col-6 resOutput">
+                                        <div class="resPut">Wheat: 2/s</div>
+                                    </div>
                                 </div>
-                                <span id="wheatProfit">X$/s</span>
+                                <span id="wheatProfit" class="resProfit">X$/s</span>
                             </div>
                         </div>
                         <div class="col-12 col-md-6 col-xl-4 jobBox" id="tempJob2">
@@ -82,7 +87,7 @@
                                 <p class="MarketMessage message">
                                     <i title="Market" class="bi-bag-fill"></i> 12:59:59 Something Happened!
                                 </p>
-                                <p class="UpgradeMessage message">
+                                <p class="UpgradesMessage message">
                                     <i title="Upgrade" class="bi-arrow-up-circle-fill"></i> 13:39:59 Something Other Happened!
                                 </p>
                                 <p class="MarketMessage message">
@@ -139,14 +144,14 @@
                                             <span id="botsTitleSpan" class="titleSpan">Bots</span>
                                         </div>
                                         <div id="botsHere" class="buyBox">
-                                            <div onmouseover="tooltip('WheatBot', 'bots', event)" onmouseout="tooltip('hide')"
+                                            <div onmouseover="tooltip('WheatBot', 'jobs', event)" onmouseout="tooltip('hide')"
                                                  class="thingColorCanAfford thing noSelect pointer botsThing" id="WheatBot"
                                                  onclick="buyBot('WheatBot')">
                                                 <span class="thingName">WheatBot</span>
                                                 <br>
                                                 <span class="thingOwned" id="WheatBotOwned">35</span>
                                             </div>
-                                            <div onmouseover="tooltip('MillBot', 'bots', event)" onmouseout="tooltip('hide')"
+                                            <div onmouseover="tooltip('MillBot', 'jobs', event)" onmouseout="tooltip('hide')"
                                                  class="thingColorCanNotAfford thing noSelect pointer botsThing" id="MillBot"
                                                  onclick="buyBot('MillBot')">
                                                 <span class="thingName">MillBot</span>
@@ -169,7 +174,9 @@
                 <table id="settingsTable">
                     <tbody>
                     <tr>
+                        <td id="currencyCounter" class="btn btn-secondary"></td>
                         <td class="btn btn-info"> Save </td>
+                        <td class="btn btn-danger" onclick="resetGame()"> Reset </td>
                     </tr>
                     </tbody>
                 </table>
@@ -177,7 +184,17 @@
         </div>
     </div>
 </div>
+<div id="tooltipDiv" class="tooltipExtraNone" style="display: none">
+    <div id="tipTitle"></div>
+    <hr/>
+    <div id="tipText"></div>
+    <hr/>
+    <div id="tipCost"></div>
+</div>
 <script src="js/bootstrap.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/updates.js"></script>
+<script src="js/tooltip.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 </body>
 
