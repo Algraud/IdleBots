@@ -169,4 +169,8 @@ function swapClass(prefix, newClass, elem){
     elem.className = className;
 }
 
+function capitalize(string){
+    return string[0].toUpperCase() + string.slice(1);
+}
+
 

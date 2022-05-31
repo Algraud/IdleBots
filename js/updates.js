@@ -22,7 +22,7 @@ function  getTabClass(displayed){
     return (displayed) ? "btn btn-success logFilter" : "btn btn-danger logFilter";
 }
 
-function filterTabs(what) {
+function filterBuyTabs(what) {
     //var buyContainer = document.getElementById('buyContainer');
     toggleTab(game.global.buyTab, false);
     game.global.buyTab = what;
@@ -33,6 +33,14 @@ function filterTabs(what) {
         document.getElementById(tab + "Container").style.display =
             (what == "all" || tab == what) ? "block" : "none";
     }
+}
+
+function filterStatTabs(what){
+    toggleTab(game.global.statsTab, false);
+    document.getElementById(game.global.statsTab + "Container").style.display = "none";
+    game.global.statsTab = what;
+    toggleTab(what, true);
+    document.getElementById(what + "Container").style.display = "block";
 }
 
 function toggleTab(what, enable){
@@ -60,8 +68,23 @@ function drawAllBots(){
     elem.innerHTML = "";
     for (const item in game.bots){
         const bot = game.bots[item];
-        if(bot.locked) continue;
+        if(!bot.blueprint.active) continue;
         drawBot(item, elem);
+    }
+}
+
+function drawAllUpgrades(){
+
+}
+
+function drawAllBlueprints(){
+    const elem = document.getElementById("blueprintsHere");
+    elem.innerHTML = "";
+    updateBlueprintsLimit();
+    for (const item in game.bots){
+        const bot = game.bots[item];
+        if(bot.blueprint.active) continue;
+        drawBlueprint(item, elem);
     }
 }
 
@@ -96,14 +119,35 @@ function  drawBot(what, where){
         what + '</span><br/><span class="thingOwned" id="' + what + 'Owned">' +
         game.bots[what].owned + '</span></div>';
 }
+
+function drawBlueprint(what, where){
+    where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\', \'blueprints\',event)" ' +
+        'onmouseout="tooltip(\'hide\')" ' +
+        'class="thingColorCanAfford thing noSelect pointer blueprintThing" ' +
+        ' id="' + what + '" onclick="selectBlueprint(\'' + what + '\')">' +
+        '<span class="thingName"><span id="' + what + 'Alert" class="alert badge"></span>' +
+        what + '</span></div>';
+}
+
+function checkTabs(){
+    toggleTab(game.global.buyTab, true);
+    toggleTab(game.global.statsTab, true);
+}
+
 function unlockBot(what){
     const bot = game.bots[what];
     bot.locked = false;
     drawAllBots();
 }
 
+function updateBlueprintsLimit(){
+    const elem = document.getElementById("blueprintsTitleLimit");
+    let limit = game.global.botLimit;
+    let active = getActiveBlueprintCount();
+    elem.innerHTML = active + "/" + limit;
+}
+
 function checkButtons(what){
-    const where = game[what];
     if(what == "bots"){
         for(let item in game.bots){
             if(game.bots[item].locked == 1) continue;
@@ -147,6 +191,51 @@ function updateGatherBoxes(){
             /*
             elem = document.getElementById(item + "Profit");
             elem.innerHTML = */
+        }
+    }
+}
+
+function fillStats(){
+    fillProductionStats();
+    fillMarketStats();
+}
+
+function fillProductionStats(){
+    let elem = document.getElementById("productionTable");
+    let tbody = "";
+    for(let item in game.resources){
+        let res = game.resources[item];
+        if(res.production !== 0){
+            let buying = res.production > 0;
+            let profit = getResourceBuySellPrice(item, buying) * res.production;
+            tbody += "<tr><td>" + item + "</td><td>" + res.production + "</td>" +
+                "<td>" + prettify(getResourceBuySellPrice(item, true)) + "</td>" +
+                "<td>" + prettify(getResourceBuySellPrice(item, false)) + "</td>" +
+                "<td>" + prettify(profit) + "</td></tr>";
+        }
+
+    }
+    elem.innerHTML = "<thead><tr><th scope='col'>Resource</th><th scope='col'>Net</th>" +
+        "<th scope='col'>Buying Price</th><th scope='col'>Selling Price</th>" +
+        "<th scope='col'>Profit per sec</th> </tr></thead><tbody>" + tbody + "</tbody>";
+}
+
+function fillMarketStats(nextRequirement){
+    let elemPop = document.getElementById("populationData");
+    let elemNeeds = document.getElementById("needsData");
+    elemPop.innerHTML = "";
+    elemNeeds.innerHTML = "";
+    elemPop.innerHTML += "<div class='marketItem'>Population: " + prettify(game.market.people) + "</div>";
+    elemPop.innerHTML += "<div class='marketItem'>Growth Speed: " + prettify((game.market.growthSpeed - 1) * 100) + "%</div>";
+    for( let item in game.market.needs){
+        let need = game.market.needs[item];
+        if(need.active){
+            let needAmount = need.perPerson * game.market.people;
+            let current = game.resources[item].supply;
+            let textColor = "";
+            if (needAmount > current) textColor = " redText";
+            elemNeeds.innerHTML += "<div class='marketItem" + textColor + "'>" + item + ": " + prettify(current) +
+                " (Need: " + prettify(needAmount) + ")</div>";
         }
     }
 }

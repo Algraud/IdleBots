@@ -38,7 +38,29 @@
             <div class="row" id="dataRow">
                 <div class="col-6" id="resourceColumn">
                     <div class="row" id="statsRow">
-                        <div id="statsBox" class="myBox"></div>
+                        <div id="statsBox" class="myBox">
+                            <div id="statsTabs">
+                                <ul id="statTabsUl" class="nav nav-tabs nav-justified tabsUl">
+                                    <li role="presentation" id="marketTab" onclick="filterStatTabs('market')"
+                                        class="buyTab nav-item tabNotSelected">
+                                        <a>Market</a>
+                                    </li>
+                                    <li role="presentation" id="productionTab" onclick="filterStatTabs('production')"
+                                        class="buyTab nav-item tabNotSelected">
+                                        <a>Production</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div id="statsContainer" class="niceScroll">
+                                <div id="marketContainer" class="row">
+                                    <div class="col-12 col-sm-6" id="populationData"></div>
+                                    <div class="col-12 col-sm-6" id="needsData"></div>
+                                </div>
+                                <div id="productionContainer" style="display: none">
+                                    <table id="productionTable" class="table table-striped"></table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="row" id="gathersHere">
                         <div class="col-12 col-md-6 col-xl-4 jobBox" id="tempJob1">
@@ -84,35 +106,26 @@
                                 </div>
                             </div>
                             <div id="log" class="niceScroll">
-                                <p class="MarketMessage message">
-                                    <i title="Market" class="bi-bag-fill"></i> 12:59:59 Something Happened!
-                                </p>
-                                <p class="UpgradesMessage message">
-                                    <i title="Upgrade" class="bi-arrow-up-circle-fill"></i> 13:39:59 Something Other Happened!
-                                </p>
-                                <p class="MarketMessage message">
-                                    <i title="Market" class="bi-bag-fill"></i> 13:59:59 Something Third Happened!
-                                </p>
                             </div>
                         </div>
                     </div>
                     <div class="row top5" id="buyRow">
                         <div class="outerBuyContainer myBox">
                             <div id="buyTabs">
-                                <ul id="buyTabsUl" class="nav nav-tabs nav-justified">
-                                    <li role="presentation" id="allTab" onclick="filterTabs('all')"
-                                        class="buyTab nav-item tabSelected">
+                                <ul id="buyTabsUl" class="nav nav-tabs nav-justified tabsUl">
+                                    <li role="presentation" id="allTab" onclick="filterBuyTabs('all')"
+                                        class="buyTab nav-item tabNotSelected">
                                         <a>All</a>
                                     </li>
-                                    <li role="presentation" id="botsTab" onclick="filterTabs('bots')"
+                                    <li role="presentation" id="botsTab" onclick="filterBuyTabs('bots')"
                                         class="buyTab nav-item tabNotSelected">
                                         <a>Bots</a>
                                     </li>
-                                    <li role="presentation" id="upgradesTab" onclick="filterTabs('upgrades')"
+                                    <li role="presentation" id="upgradesTab" onclick="filterBuyTabs('upgrades')"
                                         class="buyTab nav-item tabNotSelected">
                                         <a>Upgrades</a>
                                     </li>
-                                    <li role="presentation" id="blueprintsTab" onclick="filterTabs('blueprints')"
+                                    <li role="presentation" id="blueprintsTab" onclick="filterBuyTabs('blueprints')"
                                         class="buyTab nav-item tabNotSelected">
                                         <a>Blueprints</a>
                                     </li>
@@ -143,25 +156,20 @@
                                         <div id="botsTitleDiv" class="titleDiv">
                                             <span id="botsTitleSpan" class="titleSpan">Bots</span>
                                         </div>
-                                        <div id="botsHere" class="buyBox">
-                                            <div onmouseover="tooltip('WheatBot', 'jobs', event)" onmouseout="tooltip('hide')"
-                                                 class="thingColorCanAfford thing noSelect pointer botsThing" id="WheatBot"
-                                                 onclick="buyBot('WheatBot')">
-                                                <span class="thingName">WheatBot</span>
-                                                <br>
-                                                <span class="thingOwned" id="WheatBotOwned">35</span>
-                                            </div>
-                                            <div onmouseover="tooltip('MillBot', 'jobs', event)" onmouseout="tooltip('hide')"
-                                                 class="thingColorCanNotAfford thing noSelect pointer botsThing" id="MillBot"
-                                                 onclick="buyBot('MillBot')">
-                                                <span class="thingName">MillBot</span>
-                                                <br>
-                                                <span class="thingOwned" id="MillBotsOwned">35</span>
-                                            </div>
-                                        </div>
+                                        <div id="botsHere" class="buyBox"></div>
                                     </div>
-                                    <div id="upgradesContainer"></div>
-                                    <div id="blueprintsContainer"></div>
+                                    <div id="upgradesContainer">
+                                        <div id="upgradesTitleDiv" class="titleDiv">
+                                            <span id="upgradesTitleSpan" class="titleSpan">Upgrades</span>
+                                        </div>
+                                        <div id="upgradesHere" class="buyBox"></div>
+                                    </div>
+                                    <div id="blueprintsContainer">
+                                        <div id="blueprintsTitleDiv" class="titleDiv">
+                                            <span id="blueprintsTitleSpan" class="titleSpan">Blueprints <span id="blueprintsTitleLimit"></span></span>
+                                        </div>
+                                        <div id="blueprintsHere" class="buyBox"></div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -175,7 +183,7 @@
                     <tbody>
                     <tr>
                         <td id="currencyCounter" class="btn btn-secondary"></td>
-                        <td class="btn btn-info"> Save </td>
+                        <td class="btn btn-info" onclick="save()"> Save </td>
                         <td class="btn btn-danger" onclick="resetGame()"> Reset </td>
                     </tr>
                     </tbody>
