@@ -52,11 +52,11 @@
                                 </ul>
                             </div>
                             <div id="statsContainer" class="niceScroll">
-                                <div id="marketContainer" class="row">
+                                <div id="marketContainer" class="row tabContainer">
                                     <div class="col-12 col-sm-6" id="populationData"></div>
                                     <div class="col-12 col-sm-6" id="needsData"></div>
                                 </div>
-                                <div id="productionContainer" style="display: none">
+                                <div id="productionContainer" class="row tabContainer" style="display: none">
                                     <table id="productionTable" class="table table-striped"></table>
                                 </div>
                             </div>
@@ -152,19 +152,19 @@
                             </div>
                             <div id="buyContainer" class="niceScroll buyContainerSizeSm">
                                 <div id="buyHere" class="niceScroll buttonSizeLarge">
-                                    <div id="botsContainer">
+                                    <div id="botsContainer" class="tabContainer">
                                         <div id="botsTitleDiv" class="titleDiv">
                                             <span id="botsTitleSpan" class="titleSpan">Bots</span>
                                         </div>
                                         <div id="botsHere" class="buyBox"></div>
                                     </div>
-                                    <div id="upgradesContainer">
+                                    <div id="upgradesContainer" class="tabContainer">
                                         <div id="upgradesTitleDiv" class="titleDiv">
                                             <span id="upgradesTitleSpan" class="titleSpan">Upgrades</span>
                                         </div>
                                         <div id="upgradesHere" class="buyBox"></div>
                                     </div>
-                                    <div id="blueprintsContainer">
+                                    <div id="blueprintsContainer" class="tabContainer">
                                         <div id="blueprintsTitleDiv" class="titleDiv">
                                             <span id="blueprintsTitleSpan" class="titleSpan">Blueprints <span id="blueprintsTitleLimit"></span></span>
                                         </div>
@@ -184,7 +184,8 @@
                     <tr>
                         <td id="currencyCounter" class="btn btn-secondary"></td>
                         <td class="btn btn-info" onclick="save()"> Save </td>
-                        <td class="btn btn-danger" onclick="resetGame()"> Reset </td>
+                        <td class="btn btn-primary" onclick="resetGame(true)"> Sell Business </td>
+                        <td class="btn btn-danger" onclick="resetGame(false)"> Reset </td>
                     </tr>
                     </tbody>
                 </table>
@@ -203,6 +204,9 @@
 <script src="js/config.js"></script>
 <script src="js/updates.js"></script>
 <script src="js/tooltip.js"></script>
+<script src="js/market.js"></script>
+<script src="js/reset.js"></script>
+<script src="js/bots.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 </body>
 

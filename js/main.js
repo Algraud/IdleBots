@@ -24,6 +24,9 @@ function load(){
     }
     drawAndFill();
     autoSave();
+
+    //when you make a infinite loop you dum dum
+    applyDefaults()
 }
 
 let isSaving;
@@ -73,7 +76,7 @@ function gameLoop(makeUp){
     update();
     loops++;
 
-    if(loops % 500 === 0){
+    if(loops % 20 === 0){
         growPopulation();
     }
     if(!makeUp){
@@ -87,61 +90,23 @@ function update(){
 
 function updateCurrency(){
     let elem = document.getElementById("currencyCounter");
-    elem.innerHTML =  prettify(game.currency["credits"].owned) +
+    elem.innerHTML =  prettify(game.currency.credits.owned) +
         ' <i class="bi-motherboard"></i>';
-}
-
-function updateResources(botIndex, amount){
-    let resources = game.resources;
-    let change;
-    let bot = game.bots[botIndex];
-    for (let item in bot.input){
-        change = bot.input[item] * amount;
-        resources[item].production -= change;
-        resources[item].demand += change;
-    }
-    for (let item in bot.output){
-        change = bot.output[item] * amount;
-        resources[item].production += change;
-        resources[item].supply += change;
-    }
 }
 
 function gather(){
     let amount;
     for (let res in game.resources) {
         let perSec = 0;
-        if(game.resources[res].production !== 0) {
-            perSec = game.resources[res].production;
+        perSec = getProduction(res);
+        if(perSec !== 0) {
             amount = perSec / game.settings.speed;
             sellResource(res, amount);
         }
     }
 }
 
-function sellResource(resource, amount){
-    const resPrice = getResourceBuySellPrice(resource, false);
-    game.currency["credits"].owned += amount * resPrice;
-    game.currency["credits"].earned += amount * resPrice;
-}
 
-function getResourceDemandSupplyMod(resource){
-    let demand = game.resources[resource].demand + game.market.people * game.market.usageMod;
-    let supply = game.resources[resource].supply;
-    return demand/supply;
-}
-
-function getResourcePrice(resource){
-    let modifier = getResourceDemandSupplyMod(resource);
-    let unitPrice = game.resources[resource].unitPrice;
-    return unitPrice * modifier;
-}
-
-function getResourceBuySellPrice(resource, buying){
-    return (buying) ? getResourcePrice(resource) * game.global.buyingMod
-        : getResourcePrice(resource) * game.global.sellingMod;
-
-}
 
 let pendingLogs = {
     Market: [],
@@ -208,11 +173,11 @@ function postMessages(){
 
     pendingLogs.RAF = requestAnimationFrame(function () {
         let log = document.getElementById("log");
-        var needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
-        var pendingMessages = pendingLogs.all.join('');
+        let needsScroll = ((log.scrollTop + 10) > (log.scrollHeight - log.clientHeight));
+        let pendingMessages = pendingLogs.all.join('');
         log.innerHTML += pendingMessages;
         pendingLogs.all = [];
-        for (var item in pendingLogs){
+        for (let item in pendingLogs){
             if (item == "all" || item == "RAF") continue;
             if (pendingLogs[item].length)
                 trimMessages(item);
@@ -253,52 +218,6 @@ function nodeToArray(nodeList){
     return a;
 }
 
-function canAffordBot(what, buying, returnString){
-    let price = 0;
-    let costString = "";
-    let toBuy = game.bots[what];
-    let purchaseAmt;
-    if(game.global.buyAmt == "Max"){
-        purchaseAmt = calculateMaxAfford(toBuy);
-    } else {
-        purchaseAmt = game.global.buyAmt;
-    }
-    if(typeof toBuy === 'undefined') return false;
-    for(const costItem in toBuy.cost){
-        let priceRes = 0;
-        priceRes = parseFloat(getBotItemPrice(toBuy, costItem, purchaseAmt));
-        let priceResCurrency = priceRes * getResourceBuySellPrice(costItem, true);
-        price += priceResCurrency;
-        if(returnString){
-            costString += '<span>' + costItem + ': ' + prettify(priceRes) + ' (' +
-                priceResCurrency + '<i class="bi-motherboard"></i>)</span>, ';
-        }
-    }
-    let money = game.currency['credits'].owned;
-    if(buying && money >= price){
-        game.currency['credits'].owned -= price;
-        return true;
-    }
-    if(returnString){
-        costString += '<span> Total: ' + prettify(price) + '<i class="bi-motherboard"></i></span>';
-        return costString.slice(0, -2);
-    }
-    return money >= price;
-}
-
-function getBotItemPrice(toBuy, costItem, amount){
-    let price;
-    const thisCost = toBuy.cost[costItem];
-    if(typeof thisCost[1] !== 'undefined'){
-        let start = thisCost[0] * Math.pow(thisCost[1], toBuy['owned']);
-        let increase = (Math.pow(thisCost[1], amount) - 1) / (thisCost[1] - 1);
-        price = Math.floor(start * increase);
-    } else {
-        price = thisCost * amount;
-    }
-    return price;
-}
-
 function calculateMaxAfford(itemObj){
     if(!itemObj.cost) return 1;
     let current = itemObj.owned;
@@ -310,95 +229,20 @@ function calculateMaxAfford(itemObj){
         current++;
         for (const item in itemObj.cost) {
             const priceRes = itemObj.cost[item];
-            const resource = game.resources[item];
             if (typeof priceRes[1] !== 'undefined') {
-                price += Math.floor((priceRes[0] * Math.pow(priceRes[1],current))
-                    * getResourceBuySellPrice(resource, true));
+                let start = priceRes[0] * Math.pow(priceRes[1],current)
+                price += Math.floor(start * getResourceBuySellPrice(item, true));
             } else {
-                price += priceRes * getResourceBuySellPrice(resource, true);
+                price += priceRes * getResourceBuySellPrice(item, true);
             }
         }
     }
-    return count;
-}
-
-function buyBot(what){
-    const toBuy = game.bots[what];
-    if(typeof toBuy === 'undefined') return false;
-    let amount = (game.global.buyAmt == "Max") ? calculateMaxAfford(toBuy) : game.global.buyAmt;
-    if(!canAffordBot(what, true)) return false;
-    toBuy.owned += amount;
-    updateResources(what, amount);
-    updateOwnedCount(what, toBuy.owned);
-    updateGatherBoxes();
-    fillStats();
-}
-
-function selectBlueprint(what){
-    const toSelect = game.bots[what];
-    if(typeof toSelect === 'undefined') return false;
-    if(getActiveBlueprintCount() >= game.global.botLimit) return false;
-    toSelect.blueprint.active = true;
-    updateBlueprintsLimit();
-    drawAllGathers();
-    drawAllBots();
-    drawAllBlueprints();
-}
-
-function getActiveBlueprintCount(){
-    let active = 0;
-    for (let item in game.bots){
-        if(game.bots[item].blueprint.active) active++;
-    }
-    return active;
+    return (count <= 1) ? 1 : count - 1;
 }
 
 function costUpdatesTimeout(){
     checkButtons("bots");
     setTimeout(costUpdatesTimeout, 250)
-}
-
-function growPopulation(){
-    let req = 0;
-    let growing = true;
-    for(let item in game.market.needs){
-        let need = game.market.needs[item];
-        if(need.requirement < (game.market.people - game.market.startingPeople)){
-            if(!need.active){
-                need.active = true;
-                message("The population found the need for " + capitalize(item) +
-                    ". You need to take care of it, if you wish for the population to grow.",
-                    "Market");
-            }
-            if(need.perPerson * game.market.people > game.resources[item].supply){
-                growing = false;
-            }
-        } else {
-            if(need.requirement > req || req < (game.market.people - game.market.startingPeople)){
-                req = need.requirement;
-            }
-        }
-    }
-    if(growing){
-        game.market.people = Math.floor(game.market.growthSpeed * game.market.people);
-    }
-    fillMarketStats(req);
-}
-
-function resetGame(){
-    game = null;
-    game = newGame();
-    drawAndFill();
-    autoSave();
-}
-function drawAndFill(){
-    drawAllBots();
-    drawAllUpgrades();
-    drawAllBlueprints()
-    drawAllGathers();
-    updateGatherBoxes();
-    checkTabs();
-    fillStats();
 }
 
 load();

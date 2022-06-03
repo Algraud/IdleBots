@@ -19,7 +19,7 @@ function tooltip(what, isItIn, event){
     let toTip;
     let titleText = "";
     let tip2 = false;
-    if(isItIn !== null){
+    if(isItIn !== null && isItIn != "blueprints" && isItIn != "upgrades"){
         toTip = game[isItIn][what];
         if(typeof toTip === 'undefined') console.log(what);
         else {
@@ -33,7 +33,13 @@ function tooltip(what, isItIn, event){
         case "bots":
             costText = canAffordBot(what, false, true);
             what += " X " + prettify((game.global.buyAmt == "Max") ? calculateMaxAfford(game.bots[what], true)
-                : game.global.buyAmt)
+                : game.global.buyAmt);
+            break;
+        case "blueprints":
+            toTip = game.bots[what];
+            tooltipText = toTip.tooltip;
+            costText = Stringify(toTip.input) + "<br/><i class='bi-arrow-down'></i><br/>" + Stringify(toTip.output);
+            break;
     }
     titleText = (titleText) ? titleText : what;
     let tipNum = (tip2) ? "2" : "";
@@ -48,40 +54,40 @@ function tooltip(what, isItIn, event){
 let lastMousePos;
 
 function positionToolTip(elem, event){
-    let cordx = 0;
-    let cordy = 0;
+    let cordX = 0;
+    let cordY = 0;
     let e = event || window.event;
     if (!e) return;
     if(e.pageX || e.pageY){
-        cordy = e.pageY;
-        cordx = e.pageX;
+        cordY = e.pageY;
+        cordX = e.pageX;
     } else if (e.clientX || e.clientY){
-        cordy = e.clientY;
-        cordx = e.clientX;
+        cordY = e.clientY;
+        cordX = e.clientX;
     }
-    lastMousePos = [cordx, cordy];
+    lastMousePos = [cordX, cordY];
     let bodw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
         bodh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
         tipw = bodw * .325,
         tiph = Math.max(elem.clientHeight, elem.scrollHeight, elem.offsetHeight),
-        center = cordx - (tipw /2),
+        center = cordX - (tipw /2),
         spacing = bodh * 0.04,
         setLeft,
         setTop,
         setting;
     setting = game.options.menu.tooltipPosition.enabled;
-    if(setting == 0){
-        setLeft = cordx + spacing;
+    if(setting === 0){
+        setLeft = cordX + spacing;
         if((setLeft + tipw) > bodw) setLeft = bodw - tipw;
-        setTop = cordy - tiph - spacing;
+        setTop = cordY - tiph - spacing;
     }
     if(setting >= 1 || setTop < 0){
         setLeft = center;
         if(setLeft < 0) setLeft = 0;
         else if (setLeft > (bodw - tipw)) setLeft = bodw - tipw;
-        const maxAbove = cordy - tiph - spacing;
+        const maxAbove = cordY - tiph - spacing;
         if(setting == 1 || maxAbove < 0){
-            setTop = cordy + spacing;
+            setTop = cordY + spacing;
             if((setTop + tiph) > bodh) setTop = maxAbove;
         } else {
             setTop = maxAbove;
@@ -171,6 +177,15 @@ function swapClass(prefix, newClass, elem){
 
 function capitalize(string){
     return string[0].toUpperCase() + string.slice(1);
+}
+
+function Stringify(object){
+    let string = "";
+    for (let item in object){
+        string += capitalize(item) + ": " + object[item] + ", ";
+    }
+    string.slice(0, string.length - 2);
+    return string;
 }
 
 

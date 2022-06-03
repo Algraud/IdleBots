@@ -52,6 +52,20 @@ function toggleTab(what, enable){
     }
 }
 
+
+function checkTabs(){
+    deselectAllTabs();
+    filterBuyTabs(game.global.buyTab);
+    filterStatTabs(game.global.statsTab);
+}
+
+function  deselectAllTabs(){
+    const tabs = document.getElementsByClassName('tabContainer');
+    for (const tab of tabs){
+        tab.style.display = 'none';
+    }
+}
+
 function drawAllGathers(){
     const elem = document.getElementById("gathersHere");
     elem.innerHTML = "";
@@ -61,6 +75,7 @@ function drawAllGathers(){
             drawGather(item, elem);
         }
     }
+    updateGatherBoxes();
 }
 
 function drawAllBots(){
@@ -74,16 +89,27 @@ function drawAllBots(){
 }
 
 function drawAllUpgrades(){
-
+    const elem = document.getElementById("upgradesHere");
+    elem.innerHTML = "";
+    for (const item in game.bots){
+        const bot = game.bots[item];
+        if(!bot.blueprint.active) continue;
+        for (const itemU in bot.upgrades){
+            const upgrade = bot.upgrades[itemU];
+            if(!upgrade.unlocked || upgrade.active) continue;
+            drawUpgrade(itemU, item, elem);
+        }
+    }
 }
 
 function drawAllBlueprints(){
     const elem = document.getElementById("blueprintsHere");
     elem.innerHTML = "";
     updateBlueprintsLimit();
+    if(getActiveBlueprintCount() >= game.global.botLimit) return;
     for (const item in game.bots){
         const bot = game.bots[item];
-        if(bot.blueprint.active) continue;
+        if(bot.blueprint.active || bot.blueprint.locked) continue;
         drawBlueprint(item, elem);
     }
 }
@@ -120,6 +146,15 @@ function  drawBot(what, where){
         game.bots[what].owned + '</span></div>';
 }
 
+function  drawUpgrade(what, bot, where){
+    where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\', \'upgrades\',event, \'' + bot + '\')" ' +
+        'onmouseout="tooltip(\'hide\')" ' +
+        'class="thingColorCanAfford thing noSelect pointer upgradeThing" ' +
+        ' id="' + what + bot +'" onclick="buyBotUpgrade(\'' + what + '\',\'' + bot + '\')">' +
+        '<span class="thingName"><span id="' + what + bot +'Alert" class="alert badge"></span>' +
+        game.bots[bot].upgrades[what].name + '</span></div>';
+}
+
 function drawBlueprint(what, where){
     where.innerHTML += '<div onmouseover="tooltip(\'' + what + '\', \'blueprints\',event)" ' +
         'onmouseout="tooltip(\'hide\')" ' +
@@ -129,10 +164,6 @@ function drawBlueprint(what, where){
         what + '</span></div>';
 }
 
-function checkTabs(){
-    toggleTab(game.global.buyTab, true);
-    toggleTab(game.global.statsTab, true);
-}
 
 function unlockBot(what){
     const bot = game.bots[what];
@@ -153,7 +184,6 @@ function checkButtons(what){
             if(game.bots[item].locked == 1) continue;
             updateButtonColor(item,canAffordBot(item));
         }
-        return;
     }
 }
 
@@ -178,15 +208,16 @@ function updateGatherBoxes(){
         let bot = game.bots[item];
         if(bot.blueprint.active && bot.owned > 0){
             let elem;
+            let productionMod = getUpgradeMod(bot, UpgradeTypes.production)
             for(let res in bot.input){
                 elem = document.getElementById(item + res + "Input");
-                let number = bot.input[res] * bot.owned;
-                elem.innerHTML = res + ": " + prettify(number) + " /s";
+                let number = bot.input[res] * bot.owned * productionMod;
+                elem.innerHTML = res + ": -" + prettify(number) + " /t";
             }
             for (let res in bot.output){
                 elem = document.getElementById(item + res + "Output");
-                let number = bot.output[res] * bot.owned;
-                elem.innerHTML = res + ": " + prettify(number) + " /s";
+                let number = bot.output[res] * bot.owned * productionMod;
+                elem.innerHTML = res + ": +" + prettify(number) + " /t";
             }
             /*
             elem = document.getElementById(item + "Profit");
@@ -204,34 +235,48 @@ function fillProductionStats(){
     let elem = document.getElementById("productionTable");
     let tbody = "";
     for(let item in game.resources){
-        let res = game.resources[item];
-        if(res.production !== 0){
-            let buying = res.production > 0;
-            let profit = getResourceBuySellPrice(item, buying) * res.production;
-            tbody += "<tr><td>" + item + "</td><td>" + res.production + "</td>" +
-                "<td>" + prettify(getResourceBuySellPrice(item, true)) + "</td>" +
-                "<td>" + prettify(getResourceBuySellPrice(item, false)) + "</td>" +
+        let prod = getProduction(item);
+        let filter = true;
+        switch (game.settings.productionFilter){
+            case "all":
+                filter = true;
+                break;
+            case "own":
+                filter = (prod !== 0);
+        }
+        if(filter){
+            let buying = prod < 0;
+            let profit = getResourceBuySellPrice(item, buying) * prod ;
+            tbody += "<tr><td>" + item + "</td><td>" + prod + "</td>" +
+                "<td>" + prettify(getResourceBuySellPrice(item, true)) + "/" +
+                prettify(getResourceBuySellPrice(item, false)) + "</td>" +
+                "<td>" + prettify(getResourceSupply(item)) + "/" +
+                prettify(getResourceDemand(item)) + "</td>" +
                 "<td>" + prettify(profit) + "</td></tr>";
         }
 
     }
     elem.innerHTML = "<thead><tr><th scope='col'>Resource</th><th scope='col'>Net</th>" +
-        "<th scope='col'>Buying Price</th><th scope='col'>Selling Price</th>" +
-        "<th scope='col'>Profit per sec</th> </tr></thead><tbody>" + tbody + "</tbody>";
+        "<th scope='col'>Buying/Sell</th><th scope='col'>Supply/Demand</th>" +
+        "<th scope='col'>Profit per tick</th> </tr></thead><tbody>" + tbody + "</tbody>";
 }
 
 function fillMarketStats(nextRequirement){
+    if(typeof nextRequirement === 'undefined'){
+        nextRequirement = getNextRequirement();
+    }
     let elemPop = document.getElementById("populationData");
     let elemNeeds = document.getElementById("needsData");
     elemPop.innerHTML = "";
     elemNeeds.innerHTML = "";
     elemPop.innerHTML += "<div class='marketItem'>Population: " + prettify(game.market.people) + "</div>";
     elemPop.innerHTML += "<div class='marketItem'>Growth Speed: " + prettify((game.market.growthSpeed - 1) * 100) + "%</div>";
+    elemPop.innerHTML += "<div class='marketItem'>Next Population Need At: " + prettify(nextRequirement) + "</div>";
     for( let item in game.market.needs){
         let need = game.market.needs[item];
         if(need.active){
             let needAmount = need.perPerson * game.market.people;
-            let current = game.resources[item].supply;
+            let current = getResourceSupply(item);
             let textColor = "";
             if (needAmount > current) textColor = " redText";
             elemNeeds.innerHTML += "<div class='marketItem" + textColor + "'>" + item + ": " + prettify(current) +
@@ -239,3 +284,46 @@ function fillMarketStats(nextRequirement){
         }
     }
 }
+
+function numTab(what){
+    let num = 0;
+    if(typeof what === 'undefined') what = game.global.numTab;
+    else  game.global.numTab = what;
+    for (let x = 1; x <= 5; x++){
+        let thisTab = document.getElementById("numTab" + x);
+        if(what == x){
+            thisTab.className = thisTab.className.replace("tabNotSelected", "tabSelected");
+        } else {
+            thisTab.className = thisTab.className.replace("tabSelected", "tabNotSelected");
+        }
+        switch (x){
+            case 1:
+                num = 1;
+                break;
+            case 2:
+                num = 10;
+                break;
+            case 3:
+                num = 25;
+                 break;
+            case 4:
+                num = 100;
+                break;
+            case 5:
+                num = 'Max';
+        }
+        if(x == what) game.global.buyAmt = num;
+    }
+
+}
+
+function drawAndFill(){
+    drawAllBots();
+    drawAllUpgrades();
+    drawAllBlueprints()
+    drawAllGathers();
+    updateGatherBoxes();
+    checkTabs();
+    fillStats();
+}
+

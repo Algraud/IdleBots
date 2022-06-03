@@ -213,6 +213,7 @@
     margin-top: 5px;
     width: 100%;
     overflow-y: auto;
+    height: 85%;
 }
 #productionTable, #marketTable{
     color: white;
@@ -226,4 +227,7 @@
 }
 .redText{
     color: orangered;
+}
+#tipCost{
+    text-align: center;
 }
