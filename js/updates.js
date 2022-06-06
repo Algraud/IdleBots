@@ -106,7 +106,7 @@ function drawAllBlueprints(){
     const elem = document.getElementById("blueprintsHere");
     elem.innerHTML = "";
     updateBlueprintsLimit();
-    if(getActiveBlueprintCount() >= game.global.botLimit) return;
+    if(getActiveBlueprintCount() >= game.global.botLimit + getActiveNeedsCount()) return;
     for (const item in game.bots){
         const bot = game.bots[item];
         if(bot.blueprint.active || bot.blueprint.locked) continue;
@@ -173,7 +173,7 @@ function unlockBot(what){
 
 function updateBlueprintsLimit(){
     const elem = document.getElementById("blueprintsTitleLimit");
-    let limit = game.global.botLimit;
+    let limit = game.global.botLimit + getActiveNeedsCount();
     let active = getActiveBlueprintCount();
     elem.innerHTML = active + "/" + limit;
 }

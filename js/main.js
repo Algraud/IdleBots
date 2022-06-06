@@ -17,7 +17,11 @@ function load(){
     }
     if(unparsedSave !== null){
         saveGame = JSON.parse(unparsedSave);
+        if(saveGame.global.version != game.global.version){
+            updateSave(saveGame);
+        }
         game = saveGame;
+
     }
     if(typeof saveGame === "undefined" || saveGame === null || typeof saveGame.global === "undefined"){
         //return false;
@@ -245,7 +249,75 @@ function costUpdatesTimeout(){
     setTimeout(costUpdatesTimeout, 250)
 }
 
+function updateSave(save){
+    const version = save.global.version.split('.');
+    reapplyStrings(save);
+    if(compareVersions([0,0,2], version)){
+        reapplyResourceCosts(save);
+        reapplyBotCosts(save);
+        reapplyBotPuts(save);
+        save.global.botLimit = game.global.botLimit;
+        reapplyBotUpgrades(save);
+    }
+
+    save.global.version = game.global.version;
+}
+
+function reapplyStrings(save){
+    for (let item in save.bots){
+        if(typeof game.bots[item] === 'undefined') {
+            delete save.bots[item];
+            continue;
+        }
+        let saveBot = save.bots[item];
+        let gameBot = game.bots[item];
+        saveBot.tooltip = gameBot.tooltip;
+        for (let x in saveBot.upgrades){
+            saveBot.upgrades[x].name = gameBot.upgrades[x].name;
+            saveBot.upgrades[x].tooltip = gameBot.upgrades[x].tooltip;
+        }
+    }
+}
+
+function reapplyResourceCosts(save){
+    for (let item in save.resources){
+        save.resources[item].unitPrice = ResourceCosts[item];
+    }
+}
+
+function reapplyBotCosts(save){
+    for (let item in save.bots){
+        save.bots[item].cost = game.bots[item].cost;
+    }
+}
+
+function reapplyBotPuts(save){
+    for (let item in save.bots){
+        save.bots[item].input = game.bots[item].input;
+        save.bots[item].output = game.bots[item].output;
+    }
+}
+
+function reapplyBotUpgrades(save){
+    for (let item in save.bots){
+        for (let i in save.bots[item].upgrades){
+            game.bots[item].upgrades[i].unlocked = save.bots[item].upgrades[i].unlocked;
+            game.bots[item].upgrades[i].active = save.bots[item].upgrades[i].active;
+            save.bots[item].upgrades[i] = game.bots[item].upgrades[i];
+        }
+    }
+}
+
+function compareVersions(left, right){
+    for (let x = 0; x < left.length && x < right.length; x++){
+        if(left[x] == right[x]) continue;
+        return left[x] > right[x];
+    }
+    return null;
+}
+
 load();
 
 costUpdatesTimeout();
 setTimeout(gameTimeout, (1000 / game.settings.speed));
+

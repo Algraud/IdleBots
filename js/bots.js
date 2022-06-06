@@ -151,7 +151,7 @@ function getActiveBlueprintCount(){
 function selectBlueprint(what){
     const toSelect = game.bots[what];
     if(typeof toSelect === 'undefined') return false;
-    if(getActiveBlueprintCount() >= game.global.botLimit) return false;
+    if(getActiveBlueprintCount() >= game.global.botLimit + getActiveNeedsCount()) return false;
     toSelect.blueprint.active = true;
     tooltip('hide');
     updateBlueprintsLimit();
