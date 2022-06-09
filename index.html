@@ -184,13 +184,72 @@
                     <tr>
                         <td id="currencyCounter" class="btn btn-secondary"></td>
                         <td class="btn btn-info" onclick="save()"> Save </td>
-                        <td class="btn btn-primary" onclick="resetGame(true)"> Sell Business </td>
+                        <td class="btn btn-light" onclick="toggleSettingsMenu()">Settings</td>
+                        <td class="btn btn-primary" onclick="sellingClicked()">Sell Business <span id="awardChange"></span> </td>
                         <td class="btn btn-danger" onclick="resetGame(false)"> Reset </td>
                     </tr>
                     </tbody>
                 </table>
+                <div id="settingsHere" style="display: none">
+                    <div id="searchSettingsWindow">
+                        <div id="settingsTitleBar">
+                            <div class="noSelect optionContainer settingsBtn tealColor settingTypeBtn" onclick="toggleSettingSection(false)">Browse All</div>
+                            <span id="searchSettingsTitle">Choose a Category Below, or Search for a Setting/Keyword:</span>
+                            <input id="searchSettings" onkeyup="searchSettings(this)"/><br/>
+                            <div id="settingsTabs">
+                                <ul class="nav nav-tabs nav-justified">
+                                    <li role="presentation" id="GeneralTab" onclick="settingTab('General')" class="tabNotSelected settingTab"><a>General</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="settingsSearchResults"></div>
+                </div>
+                <div id="allSettings" style="display: none">
+                    <div class='noSelect optionContainer settingsBtn tealColor' onclick='toggleSettingSection(true)'>Back to Search</div>
+                    <div id="allSettingsHere"></div>
+                </div>
             </div>
         </div>
+    </div>
+</div>
+<div id="sellingWrapper" style="display:none;">
+    <div id="sellingTitleRow" class="row">
+        <div id="sellingTitleColLeft" class="titleCol">
+            <div>
+                <div id="sellingTitle"></div>
+                <div id="sellingError" style="display: none"></div>
+            </div>
+        </div>
+        <div id="sellingTitleColRight" class="titleCol">
+            <div>
+                <div id="sellingAwards"><span id="sellingAwardsOwned">0</span> Awards</div>
+                <div id="sellingTotalAwards"><span id="totalAwardsEarned">0</span> Earned All Time</div>
+                <div id="sellingTotalSpent"><span id="totalAwardsSpent">0</span> Spent on Grants</div>
+                <div id="sellingTotalSells"><span id="totalSells">0</span> Businesses Sold</div>
+            </div>
+        </div>
+    </div>
+    <div id="sellingRow" class="row">
+        <div id="grantCol" class="col-7">
+            <div class="challengeTitle">Specialists</div>
+            <div id="sellingStory"></div>
+            <div id="specialistsHere" class="niceScroll"></div>
+        </div>
+        <div id="challengeCol" class="col-5">
+            <div id="viewChallenge" style="display: none">
+                <span id="viewChallengeText">You do not currently have an active challenge.</span>
+                <br/><br/>
+                <div class="btn btn-warning inSellingBtn" style="display: none" id="cancelChallengeBtn"
+                     onclick="confirmAbandonChallenge()">Abandon Challenge</div>
+                <span id="extraChallengeStuff"></span>
+            </div>
+        </div>
+    </div>
+    <div id="sellingBtnContainer">
+        <div class="btn btn-primary inSellingBtn" id="sellBusinessBtn" onclick="sellBusiness()">Sell Business</div>
+        <div class="btn btn-danger inSellingBtn" id="cancelSellBtn" onclick="cancelSell()">Cancel</div>
+        <div class="btn btn-warning inSellingBtn" id="clearSpecialistsBtn" onclick="clearSpecialists()">Clear All Specialists</div>
     </div>
 </div>
 <div id="tooltipDiv" class="tooltipExtraNone" style="display: none">

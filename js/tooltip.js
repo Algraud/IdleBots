@@ -2,12 +2,12 @@
 let tooltipUpdateFunction = "";
 let onShift;
 
-function tooltip(what, isItIn, event){
-    checkAlert(what, isItIn);
+function tooltip(name, type, event, extraInfo){
+    checkAlert(name, type);
     let elem = document.getElementById("tooltipDiv");
     swapClass("tooltipExtra", "tooltipExtraNone", elem);
     document.getElementById('tipText').className = "";
-    if(what == "hide"){
+    if(name == "hide"){
         elem.style.display = "none";
         tooltipUpdateFunction = "";
         onShift = null;
@@ -19,29 +19,35 @@ function tooltip(what, isItIn, event){
     let toTip;
     let titleText = "";
     let tip2 = false;
-    if(isItIn !== null && isItIn != "blueprints" && isItIn != "upgrades"){
-        toTip = game[isItIn][what];
-        if(typeof toTip === 'undefined') console.log(what);
-        else {
-            tooltipText = toTip.tooltip;
-           /* if(typeof toTip.cost !== 'undefined'){
-                costText = addTooltipPricing(toTip, what, isItIn);
-            }*/
-        }
-    }
-    switch(isItIn){
+    switch(type){
         case "bots":
-            costText = canAffordBot(what, false, true);
-            what += " X " + prettify((game.global.buyAmt == "Max") ? calculateMaxAfford(game.bots[what], true)
-                : game.global.buyAmt);
+            tooltipText = StaticData.bots[name].tooltip;
+            costText = canAffordBot(name, false, true);
+            name += " X " + prettify((dynamicData.global.buyAmt == "Max") ? calculateMaxAfford(getBotData(), true)
+                : dynamicData.global.buyAmt);
             break;
         case "blueprints":
-            toTip = game.bots[what];
+            toTip = StaticData.bots[name];
             tooltipText = toTip.tooltip;
             costText = Stringify(toTip.input) + "<br/><i class='bi-arrow-down'></i><br/>" + Stringify(toTip.output);
             break;
+        case "upgrades":
+            toTip = StaticData.bots[extraInfo].upgrades[name];
+            titleText = toTip.name;
+            tooltipText = toTip.tooltip;
+            costText = prettify(toTip.cost) + "<i class='bi-motherboard'></i>";
+            break;
+        case "customText":
+            titleText = name;
+            tooltipText = extraInfo;
+            break;
+        case "specialists":
+            titleText = capitalize(name);
+            tooltipText = StaticData.specialists[name].tooltip;
+            costText = prettify(getSpecialistPrice(name)) + "Awards";
+            break;
     }
-    titleText = (titleText) ? titleText : what;
+    titleText = (titleText) ? titleText : name;
     let tipNum = (tip2) ? "2" : "";
     document.getElementById("tipTitle" + tipNum).innerHTML = titleText;
     document.getElementById("tipText" + tipNum).innerHTML = tooltipText;
@@ -75,7 +81,7 @@ function positionToolTip(elem, event){
         setLeft,
         setTop,
         setting;
-    setting = game.options.menu.tooltipPosition.enabled;
+    setting = dynamicData.options.menu.tooltipPosition.enabled;
     if(setting === 0){
         setLeft = cordX + spacing;
         if((setLeft + tipw) > bodw) setLeft = bodw - tipw;
@@ -143,13 +149,13 @@ function prettifySub(number){
     return number.toFixed(3 - floor.toString().length);
 }
 
-function checkAlert(what, isItIn){
-    const alert = document.getElementById(what + "Alert");
+function checkAlert(name, group){
+    const alert = document.getElementById(name + "Alert");
     if(alert === null) return;
-    if(typeof game[isItIn] === 'undefined') return;
-    game[isItIn][what].alert = false;
+    if(typeof StaticData[group] === 'undefined') return;
+    dynamicData[group][name].alert = false;
     alert.innerHTML = "";
-    const groupAlert = document.getElementById(isItIn + "Alert");
+    const groupAlert = document.getElementById(group + "Alert");
     if(groupAlert !== null) groupAlert.innerHTML = "";
 }
 

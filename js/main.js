@@ -17,10 +17,10 @@ function load(){
     }
     if(unparsedSave !== null){
         saveGame = JSON.parse(unparsedSave);
-        if(saveGame.global.version != game.global.version){
+        if(saveGame.global.version != dynamicData.global.version){
             updateSave(saveGame);
         }
-        game = saveGame;
+        dynamicData = saveGame;
 
     }
     if(typeof saveGame === "undefined" || saveGame === null || typeof saveGame.global === "undefined"){
@@ -30,14 +30,14 @@ function load(){
     autoSave();
 
     //when you make a infinite loop you dum dum
-    applyDefaults()
+    //applyDefaults()
 }
 
 let isSaving;
 
 function save(){
     isSaving=true;
-    let saveString = JSON.stringify(game);
+    let saveString = JSON.stringify(dynamicData);
     localStorage.setItem(saveName, saveString);
     if(localStorage.getItem(saveName) == saveString){
         message("Game Saved!", "Notice");
@@ -47,18 +47,18 @@ function save(){
 }
 
 function gameTimeout(){
-    if(game.options.menu.pauseGame.enabled){
+    if(dynamicData.options.menu.pauseGame.enabled){
         setTimeout(gameTimeout, 100);
-        return
+        return;
     }
     const now = new Date().getTime();
-    const tick = 1000 / game.settings.speed;
-    game.global.time += tick;
-    let dif = now - game.global.start - game.global.time;
+    const tick = 1000 / dynamicData.settings.speed;
+    dynamicData.global.time += tick;
+    let dif = now - dynamicData.global.start - dynamicData.global.time;
     while (dif >= tick){
         runGameLoop(true);
         dif -= tick;
-        game.global.time += tick;
+        dynamicData.global.time += tick;
     }
     runGameLoop(null);
     setTimeout(gameTimeout, tick - dif);
@@ -94,17 +94,17 @@ function update(){
 
 function updateCurrency(){
     let elem = document.getElementById("currencyCounter");
-    elem.innerHTML =  prettify(game.currency.credits.owned) +
+    elem.innerHTML =  prettify(dynamicData.currency.credits.owned) +
         ' <i class="bi-motherboard"></i>';
 }
 
 function gather(){
     let amount;
-    for (let res in game.resources) {
+    for (let res in StaticData.resources) {
         let perSec = 0;
         perSec = getProduction(res);
         if(perSec !== 0) {
-            amount = perSec / game.settings.speed;
+            amount = perSec / dynamicData.settings.speed;
             sellResource(res, amount);
         }
     }
@@ -122,8 +122,8 @@ let pendingLogs = {
 
 function message(messageString, type){
     let log = document.getElementById("log");
-    if(typeof game.global.messages[type] === 'undefined') console.log(messageString, type);
-    let displayType = (game.global.messages[type].enabled) ? "block" : "none";
+    if(typeof dynamicData.global.messages[type] === 'undefined') console.log(messageString, type);
+    let displayType = (dynamicData.global.messages[type].enabled) ? "block" : "none";
     let id = "";
     if(messageString == "Game Saved!") {
         id = " id='saveGame'";
@@ -137,7 +137,7 @@ function message(messageString, type){
             return;
         }
     }
-       else if(game.options.menu.timestamps.enabled){
+       else if(dynamicData.options.menu.timestamps.enabled == 1){
             messageString = getCurrentTime() + " " + messageString;
         }
         if(type == "Market"){
@@ -223,16 +223,16 @@ function nodeToArray(nodeList){
 }
 
 function calculateMaxAfford(itemObj){
-    if(!itemObj.cost) return 1;
-    let current = itemObj.owned;
-    const money = game.currency['credits'].owned;
+    if(!itemObj.static.cost) return 1;
+    let current = itemObj.dynamic.owned;
+    const money = dynamicData.currency.credits.owned;
     let price = 0;
     let count = 0;
     while(money > price) {
         count++;
         current++;
-        for (const item in itemObj.cost) {
-            const priceRes = itemObj.cost[item];
+        for (const item in itemObj.static.cost) {
+            const priceRes = itemObj.static.cost[item];
             if (typeof priceRes[1] !== 'undefined') {
                 let start = priceRes[0] * Math.pow(priceRes[1],current)
                 price += Math.floor(start * getResourceBuySellPrice(item, true));
@@ -251,61 +251,12 @@ function costUpdatesTimeout(){
 
 function updateSave(save){
     const version = save.global.version.split('.');
-    reapplyStrings(save);
+    restructureDynamicObj(save,newGame());
     if(compareVersions([0,0,2], version)){
-        reapplyResourceCosts(save);
-        reapplyBotCosts(save);
-        reapplyBotPuts(save);
-        save.global.botLimit = game.global.botLimit;
-        reapplyBotUpgrades(save);
+
     }
 
-    save.global.version = game.global.version;
-}
-
-function reapplyStrings(save){
-    for (let item in save.bots){
-        if(typeof game.bots[item] === 'undefined') {
-            delete save.bots[item];
-            continue;
-        }
-        let saveBot = save.bots[item];
-        let gameBot = game.bots[item];
-        saveBot.tooltip = gameBot.tooltip;
-        for (let x in saveBot.upgrades){
-            saveBot.upgrades[x].name = gameBot.upgrades[x].name;
-            saveBot.upgrades[x].tooltip = gameBot.upgrades[x].tooltip;
-        }
-    }
-}
-
-function reapplyResourceCosts(save){
-    for (let item in save.resources){
-        save.resources[item].unitPrice = ResourceCosts[item];
-    }
-}
-
-function reapplyBotCosts(save){
-    for (let item in save.bots){
-        save.bots[item].cost = game.bots[item].cost;
-    }
-}
-
-function reapplyBotPuts(save){
-    for (let item in save.bots){
-        save.bots[item].input = game.bots[item].input;
-        save.bots[item].output = game.bots[item].output;
-    }
-}
-
-function reapplyBotUpgrades(save){
-    for (let item in save.bots){
-        for (let i in save.bots[item].upgrades){
-            game.bots[item].upgrades[i].unlocked = save.bots[item].upgrades[i].unlocked;
-            game.bots[item].upgrades[i].active = save.bots[item].upgrades[i].active;
-            save.bots[item].upgrades[i] = game.bots[item].upgrades[i];
-        }
-    }
+    save.global.version = dynamicData.global.version;
 }
 
 function compareVersions(left, right){
@@ -316,8 +267,22 @@ function compareVersions(left, right){
     return null;
 }
 
+function restructureDynamicObj(destination, source){
+    for (let item in source){
+        let dest = destination[item];
+        let sour = source[item];
+        if(typeof dest === 'undefined' || dest === null){
+            destination[item] = sour;
+            continue;
+        }
+        if(typeof dest === 'object' && !Array.isArray(dest)){
+            restructureDynamicObj(dest, sour);
+        }
+    }
+}
+
 load();
 
 costUpdatesTimeout();
-setTimeout(gameTimeout, (1000 / game.settings.speed));
+setTimeout(gameTimeout, (1000 / dynamicData.settings.speed));
 

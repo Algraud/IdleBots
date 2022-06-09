@@ -1,100 +1,116 @@
+
+
 function growPopulation(){
     let growing = true;
-    for(let item in game.market.needs){
-        let need = game.market.needs[item];
-        if(need.requirement < (game.market.people - game.market.startingPeople)){
-            if(!need.active){
-                need.active = true;
+    for(let item in dynamicData.market.needs){
+        let needDynamic = dynamicData.market.needs[item];
+        let needStatic = StaticData.market.needs[item];
+        if(needStatic.requirement < dynamicData.market.people){
+            if(!needDynamic.active){
+                needDynamic.active = true;
                 message("The population found the need for " + capitalize(item) +
                     ". You need to take care of it, if you wish for the population to grow." +
                     " You have found the blueprints for this need and might want to sell this business.",
                     "Market");
                 unlockBlueprintByEvent("need", item);
             }
-            if(need.perPerson * game.market.people > getResourceSupply(item)){
+            if(needStatic.perPerson * dynamicData.market.people > getResourceSupply(item)){
                 growing = false;
             }
         }
     }
     if(growing){
-        game.market.people = Math.floor(game.market.growthSpeed * game.market.people);
+        dynamicData.market.people = Math.floor(getGrowthSpeed() * dynamicData.market.people);
+        giveAward();
     }
     fillStats();
 }
 
+function getGrowthSpeed(){
+    let familyPlannerMod = dynamicData.specialists.familyPlanner.level * StaticData.specialists.familyPlanner.effect;
+    return StaticData.market.growthSpeed + familyPlannerMod;
+}
+
 function getNextRequirement(){
     let req = Infinity;
-    for (let item in game.market.needs){
-        let need = game.market.needs[item];
-        if(need.active || need.requirement >= req) continue;
+    for (let item in StaticData.market.needs){
+        let need = StaticData.market.needs[item];
+        if(dynamicData.market.needs[item].active || need.requirement >= req) continue;
         req = need.requirement;
     }
-    return req + game.market.startingPeople;
+    return req;
 }
 
 function getProduction(resource){
     let prod = 0;
-    for (let item in game.bots){
-        let bot = game.bots[item];
-        if(bot.owned <= 0) continue;
+    for (let item in StaticData.bots){
+        let bot = getBotData(item);
+        if(bot.dynamic.owned <= 0) continue;
         let botProd = 0;
-        if(typeof bot.output[resource] !== 'undefined') {
-            botProd += bot.output[resource] * getUpgradeMod(bot, UpgradeTypes.output);
+        if(typeof bot.static.output[resource] !== 'undefined') {
+            let engineerMod = Math.pow(1+StaticData.specialists.engineer.effect,dynamicData.specialists.engineer.level);
+            botProd += bot.static.output[resource] * getUpgradeMod(bot, UpgradeTypes.output) * engineerMod;
         }
-        if(typeof  bot.input[resource] !== 'undefined') {
-            botProd -= bot.input[resource] * getUpgradeMod(bot, UpgradeTypes.input);
+        if(typeof  bot.static.input[resource] !== 'undefined') {
+            botProd -= bot.static.input[resource] * getUpgradeMod(bot, UpgradeTypes.input);
         }
-        prod += botProd * getUpgradeMod(bot, UpgradeTypes.production) * bot.owned;
+        prod += botProd * getUpgradeMod(bot, UpgradeTypes.production) * bot.dynamic.owned;
     }
     return prod;
 }
 
-function sellResource(resource, amount){
-    const resPrice = getResourceBuySellPrice(resource, (amount < 0));
-    game.currency["credits"].owned += amount * resPrice;
-    game.currency["credits"].earned += amount * resPrice;
+function sellResource(resourceName, amount){
+    const resPrice = getResourceBuySellPrice(resourceName, (amount < 0));
+    dynamicData.currency.credits.owned += amount * resPrice;
+    dynamicData.currency.credits.earned += amount * resPrice;
+    if(dynamicData.currency.credits.owned < 0){
+        sellingClicked(true);
+        dynamicData.options.menu.pauseGame.enabled = true;
+    }
 }
 
-function getResourceDemandSupplyMod(resource){
-    let demand = getResourceDemand(resource);
-    let supply = getResourceSupply(resource);
+function getResourceDemandSupplyMod(resourceName){
+    let demand = getResourceDemand(resourceName);
+    let supply = getResourceSupply(resourceName);
     return demand/supply;
 }
 
-function getResourceDemand(resource){
-    let prod = getProduction(resource);
+function getResourceDemand(resourceName){
+    let prod = getProduction(resourceName);
     prod = (prod < 0) ? prod : 0;
-    let demand = game.resources[resource].demand + game.market.people * game.market.usageMod -
+    let demand = dynamicData.resources[resourceName].demand + dynamicData.market.people * StaticData.market.usageMod -
         prod;
     return (demand <= 1) ? 1 : demand;
 }
 
-function getResourceSupply(resource){
-    let prod = getProduction(resource);
+function getResourceSupply(resourceName){
+    let prod = getProduction(resourceName);
     prod = (prod > 0) ? prod : 0;
-    let supply = game.resources[resource].supply+ prod;
+    let supply = dynamicData.resources[resourceName].supply + prod;
     return (supply <= 1) ? 1 : supply;
 }
 
-function getResourcePrice(resource){
-    if(typeof resource !== 'string') {
+function getResourcePrice(resourceName){
+    if(typeof resourceName !== 'string') {
         return;
     }
-    let modifier = getResourceDemandSupplyMod(resource);
-    let unitPrice = game.resources[resource].unitPrice;
+    let modifier = getResourceDemandSupplyMod(resourceName);
+    let unitPrice = StaticData.resources[resourceName].baseCost;
     return unitPrice * modifier;
 }
 
-function getResourceBuySellPrice(resource, buying){
-    return (buying) ? getResourcePrice(resource) * game.global.buyingMod
-        : getResourcePrice(resource) * game.global.sellingMod;
+function getResourceBuySellPrice(resourceName, buying){
+    let supplierMod = StaticData.specialists.supplier.effect * dynamicData.specialists.supplier.level;
+    let marketingMod = StaticData.specialists.marketing.effect * dynamicData.specialists.marketing.level;
+    return (buying) ? getResourcePrice(resourceName) * (StaticData.global.buyingMod - supplierMod)
+        : getResourcePrice(resourceName) * (StaticData.global.sellingMod + marketingMod);
 
 }
 
 function getActiveNeedsCount(){
     let count = 0;
-    for (let item in game.market.needs){
-        if(game.market.needs[item].active) count++
+    for (let item in StaticData.market.needs){
+        if(dynamicData.market.needs[item].active) count++
     }
     return count;
 }

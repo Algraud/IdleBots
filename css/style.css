@@ -231,3 +231,179 @@
 #tipCost{
     text-align: center;
 }
+#searchSettingsTitle{
+    font-size: 1.5vw;
+    margin:  0 3vw;
+}
+#settingsTitleBar{
+    text-align: center;
+    padding-top: 1.5vw;
+    margin-bottom: 1.5vw;
+}
+#searchSettings{
+    color: black;
+    font-size: 1.5vw;
+    line-height: 1.5vw;
+    width: 30%;
+}
+#settingsTabs{
+    margin-top: 0.75vw;
+}
+#settingsSearchResults{
+    height: 5.2vw;
+}
+.optionContainer{
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 2vw;
+    margin-left: 2vw;
+    margin-bottom: 1vw;
+    width: 15.5vw;
+}
+.settingsBtn{
+    font-size: 1.3vw;
+    border: 1px solid black !important;
+    cursor: pointer;
+    text-align: center;
+}
+.settingBtntrue, .settingBtn1{
+    background-color: #5cb85c;
+    color: white;
+}
+.settingBtntrue:hover, .settingBtn1:hover{
+    background-color: #449d44;
+    border-color: #398439;
+}
+.settingBtnfalse, .settingBtn0{
+    background-color: #d9534f;
+    color: white;
+}
+.settingBtnfalse:hover, .settingBtn0:hover{
+    background-color: #d43f3a;
+    border-color: #ac2925;
+}
+.settingBtn2, .btn-yellow{
+    background-color: yellow;
+    color: black;
+}
+.settingBtn2:hover, .btn-yellow:hover{
+    background-color: #e6e600;
+    color: black;
+    border-color: #c2c200;
+}
+.wheatText{
+    color: #ffc107;
+}
+.woodText{
+    color: #664d03;
+}
+.metalText{
+    color: midnightblue;
+}
+.clothText{
+    color: #ff6ce4;
+}
+.tealColor{
+    background-color: #318696 !important;
+    color: white;
+}
+#sellingWrapper{
+    color: black;
+    width: 100vw;
+    height: 100vh;
+    text-align: center;
+    padding: 0.6% 5vw;
+    background-color: #3bba04;
+}
+#sellingTitleRow {
+    height: 6.5vw;
+    margin-bottom: 0.5vw;
+}
+.titleCol{
+    display: inline-block;
+    width: 35%;
+    padding: 0 1%;
+    position: absolute;
+    top: 0.5vw;
+}
+#sellingTitleColLeft{
+    left: 22%;
+}
+#sellingTitleColRight{
+    position: absolute;
+    left: 47%;
+}
+#sellingTitle{
+    width: 100%;
+    font-size: 3.3vw;
+    text-align: center;
+    margin-top: 0.9vw;
+}
+#sellingError{
+    background-color: black;
+    color: red;
+    display: block;
+    padding: 2%;
+    font-size: 0.9vw;
+    margin-top: -3%;
+}
+#sellingAwards{
+    font-size: 2vw;
+    line-height: 2.8vw;
+}
+#sellingTotalAwards, #sellingTotalSpent, #sellingTotalSells{
+    font-size: 1.3vw;
+    line-height: 1.7vw;
+}
+#sellingRow{
+    margin-top: 1vw;
+}
+#grantCol, #challengeCol{
+    padding: 0 1%;
+}
+.challengeTitle{
+    text-align: center;
+    font-size: 1.3vw;
+    font-weight: bold;
+}
+#sellingStory{
+    display: inline-block;
+    font-size: 1.15vw;
+}
+#specialistsHere{
+    display: inline-block;
+    max-height: calc(100vh - 21.3vw);
+    overflow-y: auto;
+    width: 100%;
+}
+.sellingThing{
+    width: 19.3%;
+    font-size: 1.1vw;
+}
+.specialistColorOn{
+    background-color: black;
+}
+.specialistColorOff{
+    background-color: gray;
+}
+.specialistColorMaxed{
+    background-color: #696980;
+}
+.sellingThing .thingName {
+    font-size: 1em;
+    font-weight: bold;
+}
+.sellingThing .thingOwned {
+    font-size: 0.9em;
+}
+#viewChallenge{
+    max-height: 60vh;
+    overflow-y: auto;
+}
+#viewChallengeText, #extraChallengeStuff{
+    font-size: 1.3vw;
+    color: white;
+}
+.inSellingBtn{
+    font-size: 2vw !important;
+}
