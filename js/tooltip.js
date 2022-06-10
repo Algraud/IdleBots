@@ -23,7 +23,7 @@ function tooltip(name, type, event, extraInfo){
         case "bots":
             tooltipText = StaticData.bots[name].tooltip;
             costText = canAffordBot(name, false, true);
-            name += " X " + prettify((dynamicData.global.buyAmt == "Max") ? calculateMaxAfford(getBotData(), true)
+            name += " X " + prettify((dynamicData.global.buyAmt == "Max") ? calculateMaxAfford(getBotData(name), true)
                 : dynamicData.global.buyAmt);
             break;
         case "blueprints":

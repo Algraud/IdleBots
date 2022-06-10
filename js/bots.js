@@ -9,7 +9,7 @@ function getBotData(botName){
 function buyBot(botName){
     const toBuy = dynamicData.bots[botName];
     if(typeof toBuy === 'undefined') return false;
-    let amount = (dynamicData.global.buyAmt == "Max") ? calculateMaxAfford(toBuy) : dynamicData.global.buyAmt;
+    let amount = (dynamicData.global.buyAmt == "Max") ? calculateMaxAfford(getBotData(botName)) : dynamicData.global.buyAmt;
     if(!canAffordBot(botName, true)) return false;
     toBuy.owned += amount;
     checkBotUpgrades(botName);
