@@ -87,7 +87,7 @@ function getUpgradeMod(botObj, type){
 function buyBotUpgrade(upgradeName, botName){
     let upgrade = getBotUpgradeData(botName,upgradeName);
     if(typeof upgrade.dynamic === 'undefined') return;
-    if(canAffordUpgrade(botName, upgradeName)) return;
+    if(!canAffordUpgrade(botName, upgradeName)) return;
     upgrade.dynamic.active = true;
     dynamicData.currency.credits.owned -= StaticData.bots[botName].upgrades[upgradeName].cost
     unlockBlueprint(upgrade.static.extraUnlocks);
