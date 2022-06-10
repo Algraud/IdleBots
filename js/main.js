@@ -55,6 +55,7 @@ function gameTimeout(){
     const tick = 1000 / dynamicData.settings.speed;
     dynamicData.global.time += tick;
     let dif = now - dynamicData.global.start - dynamicData.global.time;
+    if (dif > 3600000) dif = 3600000;
     while (dif >= tick){
         runGameLoop(true);
         dif -= tick;
